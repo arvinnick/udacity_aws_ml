@@ -1,7 +1,6 @@
 import math
 import matplotlib.pyplot as plt
 import numpy as np
-from scipy.stats import binom
 
 
 from .Generaldistribution import Distribution
@@ -48,7 +47,7 @@ class Binomial(Distribution):
         self.stdev = self.calculate_stdev()
         #       Then use the init function from the Distribution class to initialize the
         #       mean and the standard deviation of the distribution
-        Distribution.__init__(mu=self.mean, sigma=self.stdev)
+        Distribution.__init__(self, mu=self.mean, sigma=self.stdev)
         #       Hint: You need to define the calculate_mean() and calculate_stdev() methods
         #               farther down in the code starting in line 55. 
         #               The init function can get access to these methods via the self
@@ -67,7 +66,7 @@ class Binomial(Distribution):
     
         """
                 
-        self.mean = binom.mean(self.n, self.p)
+        self.mean = self.n * self.p
         return self.mean
 
 
@@ -87,12 +86,12 @@ class Binomial(Distribution):
         # calculate the standard deviation of the Binomial distribution. Store
         #       the result in the self standard deviation attribute. Return the value
         #       of the standard deviation.
-        self.stdev = binom.std(self.n,self.p)
+        self.stdev = math.sqrt(self.n * self.p * (1 - self.p))
         return self.stdev
         
         
         
-    def replace_stats_with_data(self):
+    def replace_stats_with_data(self,file_name="./numbers_binomial.txt"):
     
         """Function to calculate p and n from the data set
         
@@ -115,7 +114,7 @@ class Binomial(Distribution):
         #
         #       Write code that: 
         #           updates the n attribute of the binomial distribution
-        self.data = self.read_data_file()
+        self.data = self.read_data_file(file_name)
         self.n = len(self.data)
         #           updates the p value of the binomial distribution by calculating the
         #               number of positive trials divided by the total trials
@@ -126,7 +125,7 @@ class Binomial(Distribution):
         self.stdev = self.calculate_stdev()
         #       Hint: You can use the calculate_mean() and calculate_stdev() methods
         #           defined previously.
-        return self.p, self.n
+        return (self.p, self.n)
         
     def plot_bar(self):
         """Function to output a histogram of the instance variable data using 
@@ -174,8 +173,10 @@ class Binomial(Distribution):
         # 
         #   For example, if you flip a coin n = 60 times, with p = .5,
         #   what's the likelihood that the coin lands on heads 40 out of 60 times?
-        self.pdf = binom.pmf(k, self.n, self.p)
-        return self.pdf
+        pdf = ((math.factorial(self.n)) / (math.factorial(k) *
+                                                math.factorial(self.n - k))) * \
+                   (self.p ** k) * ((1 - self.p) ** (self.n - k))
+        return pdf
 
 
     def plot_bar_pdf(self):
